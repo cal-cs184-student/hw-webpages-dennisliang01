@@ -1,116 +1,295 @@
 <html>
-	<head>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-		<style>
-			h1 {
-				text-align: center;
-			}
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+      }
 
-			.container {
-				margin: 0 auto;
-				padding: 60px 20%;
-			}
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
 
-			figure {
-				text-align: center;
-			}
+      figure {
+        text-align: center;
+      }
 
-			img {
-				display: inline-block;
-			}
+      img {
+        display: inline-block;
+      }
 
-			body {
-				font-family: 'Inter', sans-serif;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 2 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
 
-		<br>
+  <body>
+    <div class="container">
+      <h1>CS184/284A Spring 2025 Homework 2 Write-Up</h1>
+      <div style="text-align: center">Names: Dennis Liang</div>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+      <br />
 
-		<br>
-		
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+      Link to webpage:
+      <a href="https://cal-cs184-student.github.io/hw-webpages-dennisliang01/"
+        >https://cal-cs184-student.github.io/hw-webpages-dennisliang01/</a
+      >
 
-		<figure>
-			<img src="teapot.png" alt="Teapot" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+      <br />
 
-		<!--
+      Link to GitHub repository:
+      <a href="https://github.com/cal-cs184-student/hw2-meshedit-dennisliang01v"
+        >https://github.com/cal-cs184-student/hw2-meshedit-dennisliang01</a
+      >
+
+      <figure>
+        <img src="teapot.png" alt="Teapot" style="width: 50%" />
+        <figcaption>You can add images with captions!</figcaption>
+      </figure>
+
+      <!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+      <h2>Overview</h2>
+      TODO: Give a high-level overview of what you implemented in this homework.
+      Think about what you've built as a whole. Share your thoughts on what
+      interesting things you've learned from completing the homework.
 
-		<h2>Section I: Bezier Curves and Surfaces</h2>
+      <h2>Section I: Bezier Curves and Surfaces</h2>
 
-		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
+      <p>
+        De Casteljau's algorithm evaluates a Bézier curve at a parameter
+        <em>t</em> &isin; [0, 1] through repeated linear interpolation over a
+        set of control points. At each step, every adjacent pair of points is
+        blended together using the formula
+        <em
+          >(1 &minus; t) &middot; p<sub>i</sub> + t &middot; p<sub>i+1</sub></em
+        >, producing a new, smaller set of points. This process repeats on each
+        successive result until only a single point remains &mdash; that point
+        is the location on the curve at parameter <em>t</em>. In my
+        implementation, <code>evaluateStep</code> performs one such reduction:
+        it iterates over adjacent pairs in the input vector and pushes each
+        interpolated result into a new vector, which is returned. To fully
+        evaluate the curve, this function is called recursively on its own
+        output until the vector contains just one point, which for an
+        <em>n</em>-th degree Bézier curve requires exactly <em>n</em> steps.
+      </p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part1/Screenshot 2026-03-02 115645.png"
+                width="400px"
+              />
+              <figcaption>6 control points curve</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part1/Screenshot 2026-03-02 115734.png"
+                width="400px"
+              />
+              <figcaption>Each level of control points</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part1/Screenshot 2026-03-02 115755.png"
+                width="400px"
+              />
+              <figcaption>Final curve after 6 steps of subdivision</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part1/Screenshot 2026-03-02 121057.png"
+                width="400px"
+              />
+              <figcaption>Slightly different curve with different t</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
 
-		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+      <figure>
+        <img
+          src="./Part2/Screenshot 2026-03-02 123309.png"
+          alt="Teapot"
+          style="width: 100%"
+        />
+        <figcaption>Teapot screenshot</figcaption>
+      </figure>
+      <p>
+        A Bézier patch extends de Casteljau's algorithm to two dimensions by
+        applying it separably across two parameters, <em>u</em> and <em>v</em>.
+        The control points form an <em>n</em> &times; <em>n</em> grid, and
+        evaluation proceeds in two passes. In my implementation,
+        <code>evaluateStep</code> performs a single linear interpolation pass
+        identically to the 1D case, while <code>evaluate1D</code> calls it
+        recursively until one point remains &mdash; fully evaluating a 1D Bézier
+        curve at parameter <em>t</em>. In <code>evaluate(u, v)</code>, each row
+        of the control point grid is first evaluated at parameter
+        <em>u</em> using <code>evaluate1D</code>, producing a single
+        intermediate point per row. These intermediate points are then collected
+        into a new vector and evaluated once more at parameter <em>v</em>,
+        effectively sweeping the curve across the second axis. The result is the
+        point on the surface at <em>(u, v)</em>.
+      </p>
 
-		<h3>Part 3: Area-weighted vertex normals</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
-		<h3>Part 4: Edge flip</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h3>Part 3: Area-weighted vertex normals</h3>
+      <p>
+        To compute an area-weighted vertex normal, I traverse all non-boundary
+        faces adjacent to the vertex using the halfedge data structure, cycling
+        around by repeatedly following <code>twin()->next()</code> until
+        returning to the starting halfedge. For each neighboring face, I
+        retrieve the three vertex positions of that triangle and compute the
+        cross product of two of its edge vectors &mdash;
+        <em
+          >(p<sub>1</sub> &minus; p<sub>0</sub>) &times; (p<sub>2</sub> &minus;
+          p<sub>0</sub>)</em
+        >. This cross product naturally encodes both the face normal direction
+        and its area as a magnitude, so larger triangles contribute more to the
+        result. Each such vector is accumulated into a running sum, and once all
+        neighbors have been visited the sum is normalized to produce a unit
+        normal, giving a smooth, area-weighted approximation of the surface
+        normal at that vertex.
+      </p>
 
-		<h3>Part 5: Edge split</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part3/Screenshot 2026-03-02 172550.png"
+                width="400px"
+              />
+              <figcaption>Default flat shading</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part3/Screenshot 2026-03-02 172524.png"
+                width="400px"
+              />
+              <figcaption>Phong shading</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h3>Part 4: Edge flip</h3>
+      <p>
+        To implement the edge flip, I began by returning immediately if either
+        neighboring face was a boundary. I then carefully collected all relevant
+        halfedges, vertices, and faces before modifying anything, storing them
+        in named local variables to avoid losing references mid-reassignment.
+        With all elements captured, I used <code>setNeighbors</code> to reassign
+        every halfedge's <code>next</code>, <code>twin</code>,
+        <code>vertex</code>, <code>edge</code>, and <code>face</code> pointers
+        in full, then updated the <code>halfedge()</code> pointers on all four
+        vertices and both faces. Following the spec's recommendation, I
+        reassigned every pointer unconditionally rather than trying to reason
+        about which ones changed, which kept the logic straightforward and less
+        error-prone.
+      </p>
+      <p>
+        The one bug I encountered was forgetting to update the face
+        <code>halfedge()</code> pointers at the end. The flip appeared to work
+        correctly on the first operation, but repeated flips produced corrupted
+        geometry because a face could end up pointing to a halfedge that had
+        been reassigned to the other face. The fix was simply adding
+        <code>f0->halfedge() = h0</code> and <code>f1->halfedge() = h1</code> at
+        the end of the function. This reinforced the importance of the spec's
+        advice to treat every pointer as dirty and reset it explicitly, even
+        when it seems unchanged.
+      </p>
 
-		<h2>(Optional) Section III: Potential Extra Credit - Art Competition: Model something Creative</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part4/Screenshot 2026-03-02 181010.png"
+                width="400px"
+              />
+              <figcaption>Teapot before edge flips</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part4/Screenshot 2026-03-02 181120.png"
+                width="400px"
+              />
+              <figcaption>Teapot after edge flips</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
-		</div>
-	</body>
+      <h3>Part 5: Edge split</h3>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+
+      <h3>Part 6: Loop subdivision for mesh upsampling</h3>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+
+      <h2>
+        (Optional) Section III: Potential Extra Credit - Art Competition: Model
+        something Creative
+      </h2>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+
+      <h2>Additional Notes (please remove)</h2>
+      <ul>
+        <li>
+          You can also add code if you'd like as so: <code>code code code</code>
+        </li>
+        <li>
+          If you'd like to add math equations,
+          <ul>
+            <li>
+              You can write inline equations like so: \( a^2 + b^2 = c^2 \)
+            </li>
+            <li>
+              You can write display equations like so: \[ a^2 + b^2 = c^2 \]
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </body>
 </html>
