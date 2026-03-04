@@ -58,9 +58,19 @@
 		-->
 
       <h2>Overview</h2>
-      TODO: Give a high-level overview of what you implemented in this homework.
-      Think about what you've built as a whole. Share your thoughts on what
-      interesting things you've learned from completing the homework.
+      <p>
+        In this assignment I built a progressive pipeline for geometric
+        modeling, starting from Bézier curve and surface evaluation using de
+        Casteljau's algorithm, then moving into halfedge mesh operations
+        including area-weighted vertex normals, edge flips, and edge splits, and
+        finally combining everything into Loop subdivision. What I found most
+        interesting was how deeply each piece depended on the correctness of the
+        previous one, subdivision only works if splits and flips are right,
+        which only works if every halfedge pointer is meticulously maintained.
+        The assignment gave me a genuine appreciation for the low-level
+        geometric reasoning that underlies the smooth surfaces we take for
+        granted in games and film.
+      </p>
 
       <h2>Section I: Bezier Curves and Surfaces</h2>
 
@@ -73,14 +83,14 @@
         <em
           >(1 &minus; t) &middot; p<sub>i</sub> + t &middot; p<sub>i+1</sub></em
         >, producing a new, smaller set of points. This process repeats on each
-        successive result until only a single point remains &mdash; that point
-        is the location on the curve at parameter <em>t</em>. In my
-        implementation, <code>evaluateStep</code> performs one such reduction:
-        it iterates over adjacent pairs in the input vector and pushes each
-        interpolated result into a new vector, which is returned. To fully
-        evaluate the curve, this function is called recursively on its own
-        output until the vector contains just one point, which for an
-        <em>n</em>-th degree Bézier curve requires exactly <em>n</em> steps.
+        successive result until only a single point remains, that point is the
+        location on the curve at parameter <em>t</em>. In my implementation,
+        <code>evaluateStep</code> performs one such reduction: it iterates over
+        adjacent pairs in the input vector and pushes each interpolated result
+        into a new vector, which is returned. To fully evaluate the curve, this
+        function is called recursively on its own output until the vector
+        contains just one point, which for an <em>n</em>-th degree Bézier curve
+        requires exactly <em>n</em> steps.
       </p>
 
       <div style="display: flex; flex-direction: column; align-items: center">
@@ -139,14 +149,14 @@
         evaluation proceeds in two passes. In my implementation,
         <code>evaluateStep</code> performs a single linear interpolation pass
         identically to the 1D case, while <code>evaluate1D</code> calls it
-        recursively until one point remains &mdash; fully evaluating a 1D Bézier
-        curve at parameter <em>t</em>. In <code>evaluate(u, v)</code>, each row
-        of the control point grid is first evaluated at parameter
-        <em>u</em> using <code>evaluate1D</code>, producing a single
-        intermediate point per row. These intermediate points are then collected
-        into a new vector and evaluated once more at parameter <em>v</em>,
-        effectively sweeping the curve across the second axis. The result is the
-        point on the surface at <em>(u, v)</em>.
+        recursively until one point remains, fully evaluating a 1D Bézier curve
+        at parameter <em>t</em>. In <code>evaluate(u, v)</code>, each row of the
+        control point grid is first evaluated at parameter <em>u</em> using
+        <code>evaluate1D</code>, producing a single intermediate point per row.
+        These intermediate points are then collected into a new vector and
+        evaluated once more at parameter <em>v</em>, effectively sweeping the
+        curve across the second axis. The result is the point on the surface at
+        <em>(u, v)</em>.
       </p>
 
       <h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
@@ -195,29 +205,32 @@
 
       <h3>Part 4: Edge flip</h3>
       <p>
-        To implement the edge flip, I began by returning immediately if either
-        neighboring face was a boundary. I then carefully collected all relevant
-        halfedges, vertices, and faces before modifying anything, storing them
-        in named local variables to avoid losing references mid-reassignment.
-        With all elements captured, I used <code>setNeighbors</code> to reassign
-        every halfedge's <code>next</code>, <code>twin</code>,
-        <code>vertex</code>, <code>edge</code>, and <code>face</code> pointers
-        in full, then updated the <code>halfedge()</code> pointers on all four
-        vertices and both faces. Following the spec's recommendation, I
-        reassigned every pointer unconditionally rather than trying to reason
-        about which ones changed, which kept the logic straightforward and less
-        error-prone.
+        The edge flip works by treating the two triangles sharing an edge as a
+        diamond of four vertices:
+        <strong>vA</strong> and <strong>vB</strong> (the original edge
+        endpoints) and <strong>vC</strong> and <strong>vD</strong> (the two
+        apexes). Flipping re-routes the shared edge so it runs between vC and vD
+        instead. No new elements are allocated, every existing halfedge, edge,
+        and face is simply rewired via <code>setNeighbors</code>.
       </p>
+
       <p>
-        The one bug I encountered was forgetting to update the face
-        <code>halfedge()</code> pointers at the end. The flip appeared to work
-        correctly on the first operation, but repeated flips produced corrupted
-        geometry because a face could end up pointing to a halfedge that had
-        been reassigned to the other face. The fix was simply adding
-        <code>f0->halfedge() = h0</code> and <code>f1->halfedge() = h1</code> at
-        the end of the function. This reinforced the importance of the spec's
-        advice to treat every pointer as dirty and reset it explicitly, even
-        when it seems unchanged.
+        The implementation first collects all ten relevant halfedges (six inner,
+        four outer twins), the four vertices, four outer edges, and two faces
+        before touching anything. Writing all assignments after the collection
+        phase means no pointer is chased after it has already been redirected,
+        which avoids the most common source of corruption in halfedge surgery.
+      </p>
+
+      <p>
+        The main debugging trick was drawing the before/after diagrams by hand
+        and labeling each halfedge with its <em>new</em> next/twin/vertex triple
+        before writing a single line of code. Cross-checking those labels
+        against the <code>setNeighbors</code> calls made it easy to spot any
+        mismatch. A secondary check was verifying that every outer halfedge's
+        <code>next</code> and <code>face</code> are left unchanged, only their
+        <code>twin</code> pointers need updating, which kept the outer rewiring
+        minimal and less error-prone.
       </p>
 
       <div style="display: flex; flex-direction: column; align-items: center">
@@ -234,7 +247,7 @@
             </td>
             <td style="text-align: center">
               <img
-                src="./Part4/Screenshot 2026-03-02 181120.png"
+                src="./Part4/Screenshot 2026-03-03 204811.png"
                 width="400px"
               />
               <figcaption>Teapot after edge flips</figcaption>
@@ -244,22 +257,240 @@
       </div>
 
       <h3>Part 5: Edge split</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      <p>
+        Edge split inserts a new midpoint vertex <strong>vM</strong> at the
+        average of the two edge endpoints, then subdivides the surrounding
+        diamond into four triangles. Unlike a flip, this requires allocating new
+        mesh elements: six new halfedges, three new edges, two new faces, and
+        the midpoint vertex itself. The original two faces are reused for two of
+        the four resulting triangles to minimize allocation overhead.
+      </p>
+
+      <p>
+        The boundary case is handled separately since only one triangle exists,
+        the split produces two interior triangles plus a new boundary loop
+        halfedge wired to a freshly allocated boundary face. The interior case
+        follows the same collect-then-reassign discipline as the flip: all
+        existing pointers are gathered into named locals first, new elements are
+        allocated second, and every <code>setNeighbors</code> call is written
+        only after the full picture is known.
+      </p>
+
+      <p>
+        The most useful debugging trick was distinguishing which new edges
+        should be flagged
+        <code>isNew = true</code> versus <code>false</code>. Only the two
+        "spoke" edges that cross the original edge boundary are truly new for
+        the purposes of Loop subdivision's flip step, the third new edge that
+        runs parallel to an original edge is marked <code>isNew = false</code>
+        so it doesn't get flipped later. Getting that flag wrong caused mesh
+        corruption during upsampling that was difficult to trace, so verifying
+        it early saved significant debugging time.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part5/Screenshot 2026-03-03 165608.png"
+                width="400px"
+              />
+              <figcaption>Cow before edge splits</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part5/Screenshot 2026-03-03 205039.png"
+                width="400px"
+              />
+              <figcaption>Cow after edge splits</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part5/Screenshot 2026-03-03 205118.png"
+                width="400px"
+              />
+              <figcaption>Quadball before edge splits and flips</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part5/Screenshot 2026-03-03 205331.png"
+                width="400px"
+              />
+              <figcaption>Quadball after edge splits and flips</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h3>Part 6: Loop subdivision for mesh upsampling</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      <h4>Implementation</h4>
+      <p>
+        Loop subdivision runs in five sequential passes. First, every existing
+        vertex has its new position computed using the Loop weight formula,
+        degree-3 vertices use <code>u = 3/16</code> and all others use
+        <code>u = 3/(8n)</code>, blending the vertex's current position with its
+        one-ring neighbor average. Second, every original edge stores the
+        weighted midpoint position <code>(3(a+b) + (c+d)) / 8</code> for the
+        vertex that will be inserted there. Third, only the original edges are
+        split (tracked via a pre-counted integer so the iterator doesn't walk
+        into newly created edges), and each new midpoint vertex receives the
+        position stored on its edge. Fourth, any new edge connecting exactly one
+        new vertex to one old vertex is flipped to restore the correct
+        triangulation. Finally, all <code>newPosition</code> values are
+        committed.
+      </p>
+
+      <p>
+        The most important debugging insight was carefully managing the
+        <code>isNew</code> flags. Specifically, the spoke edge that runs
+        parallel to an original edge during a split must be marked
+        <code>isNew = false</code>, otherwise the flip pass incorrectly
+        processes it and corrupts the mesh. Using
+        <code>startIsNew != endIsNew</code> as the flip condition was also
+        cleaner and less error-prone than the equivalent double-negation boolean
+        expression.
+      </p>
+
+      <h4>Behavior of Sharp Features After Subdivision</h4>
+      <p>
+        Loop subdivision smooths the mesh by pulling vertices toward their
+        neighbors each iteration, so sharp corners and creases progressively
+        round out. After just two or three iterations a cube's corners become
+        visibly soft and its edges become curved. This is expected, Loop
+        subdivision converges to a smooth limit surface, so any feature that
+        isn't explicitly constrained will be averaged away.
+      </p>
+      <p>
+        Pre-splitting edges around a sharp feature before subdividing helps
+        preserve it. By adding extra edge loops close to a corner or crease, the
+        one-ring neighbors of vertices along that feature are pulled closer
+        together, reducing how far the weighted average moves them. The effect
+        is similar to adding holding edges in subdivision surface modeling.
+      </p>
+
+      <h4>Cube Asymmetry and How to Fix It</h4>
+      <p>
+        The default cube mesh has one diagonal edge per face, and all six
+        diagonals happen to be oriented the same way relative to the cube's
+        faces. This gives each face an asymmetric triangulation, one vertex on
+        each face has degree 5 while the opposite has degree 3. Because the Loop
+        weights depend on vertex degree, those two vertices move by different
+        amounts each subdivision step, and the asymmetry compounds across
+        iterations until the subdivided shape is noticeably lopsided.
+      </p>
+      <p>
+        The fix is to make every face's triangulation rotationally symmetric
+        before subdividing. Adding a second diagonal to each face (so each face
+        has an X pattern) gives every face vertex the same local connectivity.
+        With uniform vertex degrees across the cube, every vertex moves by the
+        same weighted amount and the shape remains symmetric under repeated
+        subdivision. A single edge flip per face is sufficient on the default
+        cube since each face already has one diagonal, flipping it to the
+        opposite orientation and then adding the cross diagonal produces the
+        symmetric starting configuration.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 211231.png"
+                width="400px"
+              />
+              <figcaption>Icosahedron Iteration 0</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 211300.png"
+                width="400px"
+              />
+              <figcaption>Icosahedron Iteration 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 211317.png"
+                width="400px"
+              />
+              <figcaption>Icosahedron Iteration 2</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 211333.png"
+                width="400px"
+              />
+              <figcaption>Icosahedron Iteration 3</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210347.png"
+                width="400px"
+              />
+              <figcaption>Cube Iteration 0</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210427.png"
+                width="400px"
+              />
+              <figcaption>Cube Iteration 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210448.png"
+                width="400px"
+              />
+              <figcaption>Cube Iteration 2</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210519.png"
+                width="400px"
+              />
+              <figcaption>Cube Iteration 3</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210654.png"
+                width="400px"
+              />
+              <figcaption>Preprocessed Cube Iteration 0</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210720.png"
+                width="400px"
+              />
+              <figcaption>Preprocessed Cube Iteration 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210733.png"
+                width="400px"
+              />
+              <figcaption>Preprocessed Cube Iteration 2</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img
+                src="./Part6/Screenshot 2026-03-03 210748.png"
+                width="400px"
+              />
+              <figcaption>Preprocessed Cube Iteration 3</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h2>
         (Optional) Section III: Potential Extra Credit - Art Competition: Model
